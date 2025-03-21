@@ -46,6 +46,7 @@
 #include "llvm/Transforms/Vectorize.h"
 #include "llvm/Transforms/Vectorize/LoopVectorize.h"
 #include "llvm/Transforms/Vectorize/SLPVectorizer.h"
+#include "llvm/Transforms/EncodeFunctionName/EncodeFunctionName.h"
 
 using namespace llvm;
 
@@ -146,6 +147,10 @@ cl::opt<bool> FlattenedProfileUsed(
 cl::opt<bool> EnableOrderFileInstrumentation(
     "enable-order-file-instrumentation", cl::init(false), cl::Hidden,
     cl::desc("Enable order file instrumentation (default = off)"));
+
+static cl::opt<bool>
+    EnableEncodeFunctionName("encode_function_name", cl::init(false), cl::Hidden,
+                         cl::desc("Encode Function Name Pass"));
 
 PassManagerBuilder::PassManagerBuilder() {
     OptLevel = 2;
@@ -437,6 +442,11 @@ void PassManagerBuilder::populateModulePassManager(
     if (!(FlattenedProfileUsed && PerformThinLTO))
       MPM.add(createSampleProfileLoaderPass(PGOSampleUse));
   }
+
+    MPM.add(createEncodeFunctionName(EnableEncodeFunctionName));
+
+
+
 
   // Allow forcing function attributes as a debugging and tuning aid.
   MPM.add(createForceFunctionAttrsLegacyPass());
